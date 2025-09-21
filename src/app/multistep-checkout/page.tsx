@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import packages from '../../data/packages.json';
 
 const steps = ["Select a package", "Choose addons", "Complete purchase"];
@@ -209,6 +210,15 @@ const CardForm = ({
 }) => {
     const [currency, setCurrency] = useState('USD');
     const [promoCode, setPromoCode] = useState('');
+
+    const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const rawValue = e.target.value.replace(/\s+/g, '');
+        const digitsOnly = rawValue.replace(/\D/g, '');
+        const truncated = digitsOnly.slice(0, 16);
+        const formatted = truncated.replace(/(.{4})/g, '$1 ').trim();
+        setCardNumber(formatted);
+    };
+
     return (
         <div className="mt-8 p-6">
             <div className="flex justify-between items-start">
@@ -234,7 +244,7 @@ const CardForm = ({
             </div>
             <div className="space-y-8 mt-8">
                 <FormField id="cardName" label="Name on card" value={cardName} onChange={(e) => setCardName(e.target.value)} />
-                <FormField id="cardNumber" label="Card number" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+                <FormField id="cardNumber" label="Card number" value={cardNumber} onChange={handleCardNumberChange} />
                 <div className="flex flex-col md:flex-row gap-8">
                     <div className="flex-1">
                         <FormField id="expiryDate" label="MM/YY" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} />
@@ -335,7 +345,7 @@ const CompletePurchaseContent = ({
                             <div className="relative w-[295px] h-[168px] bg-no-repeat bg-contain rounded-2xl shadow-lg p-6 text-white font-['Poppins',_Roboto,_sans-serif]" style={{ backgroundImage: "url('/credit_card_active.png')" }}>
                                 <div className="absolute top-20 left-6">
                                     {cardNumber ?
-                                        <div className="text-2xl tracking-[0.2em]">{cardNumber}</div> :
+                                        <div className="text-[19px] tracking-wider">{cardNumber.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim()}</div> :
                                         <div className="flex items-center gap-x-2 text-2xl">
                                             {[...Array(4)].map((_, groupIndex) => (
                                                 <span key={groupIndex} className="text-[19px]">••••</span>
@@ -398,7 +408,8 @@ const CompletePurchaseContent = ({
     );
 };
 
-export const MultistepCheckout = ({ onBack }: { onBack: () => void }) => {
+export const MultistepCheckout = ({ onBack }: { onBack?: () => void }) => {
+    const router = useRouter();
     const [activeStep, setActiveStep] = useState(0);
     const [selectedPackage, setSelectedPackage] = useState<number | null>(2);
     const [selectedAddons, setSelectedAddons] = useState<number[]>([]);
@@ -410,7 +421,11 @@ export const MultistepCheckout = ({ onBack }: { onBack: () => void }) => {
     };
 
     const handleBack = () => {
-        setActiveStep((prev) => Math.max(0, prev - 1));
+        if (activeStep > 0) {
+            setActiveStep((prev) => Math.max(0, prev - 1));
+        } else if (onBack) {
+            onBack();
+        }
     };
 
     const handleSelectPackage = (packageId: number) => {
@@ -465,7 +480,7 @@ export const MultistepCheckout = ({ onBack }: { onBack: () => void }) => {
                         {steps.map((step, index) => (
                             <li key={step}>
                                 <button
-                                    onClick={() => index < activeStep && setActiveStep(index)}
+                                    onClick={() => activeStep > index && setActiveStep(index)}
                                     disabled={index > activeStep}
                                     className={`w-full text-left rounded-md px-4 py-2 font-['Poppins',_Roboto,_sans-serif] transition-colors disabled:cursor-default disabled:opacity-50 ${index <= activeStep
                                         ? "bg-[url(/arrow_in_circle.svg)] bg-left bg-no-repeat pl-10 text-[20px] font-medium cursor-pointer"
@@ -485,7 +500,7 @@ export const MultistepCheckout = ({ onBack }: { onBack: () => void }) => {
                         {steps[activeStep]}
                     </h2>
                     <button
-                        onClick={onBack}
+                        onClick={onBack ? onBack : () => router.push('/')}
                         className="rounded-lg bg-[#f3f7ff] px-4 py-2 text-sm font-semibold text-[#0ca8c1] shadow-md transition-colors hover:bg-[#e4eaf2]"
                     >
                         Back to platform
