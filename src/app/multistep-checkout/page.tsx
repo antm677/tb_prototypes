@@ -537,3 +537,5 @@ export const MultistepCheckout = ({ onBack }: { onBack: () => void }) => {
         </div>
     );
 };
+
+export default MultistepCheckout;
