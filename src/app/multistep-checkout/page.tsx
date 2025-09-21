@@ -291,6 +291,18 @@ const SkrillForm = ({ totalPrice, totalActualPrice }: { totalPrice: number, tota
     );
 };
 
+const SecureCheckoutInfo = () => (
+    <div className="flex flex-col items-center justify-center gap-4">
+        <p className="font-['Poppins',_Roboto,_sans-serif] text-[#8b939b] text-[14px]">Guaranteed safe & secure checkout</p>
+        <Image src="/ic_cc_ssl.png" alt="SSL" width={300} height={42} />
+        <div className="flex gap-2">
+            <Image src="/visa.png" alt="Visa" width={48} height={12} />
+            <Image src="/master.png" alt="Mastercard" width={50} height={12} />
+            <Image src="/maestro.png" alt="Maestro" width={50} height={12} />
+        </div>
+    </div>
+);
+
 const paymentMethods = [
     { id: 'card', name: 'Credit Card', src: '/pm_credit_cards.png', width: 150, height: 24 },
     { id: 'skrill', name: 'Skrill', src: '/skrill.png', width: 80, height: 24 },
@@ -331,8 +343,8 @@ const CompletePurchaseContent = ({
         <div className="mt-8">
             <div className="max-w-[674px]">
                 {selectedPaymentMethod === 'card' ?
-                    <div className="flex gap-4">
-                        <div className="w-1/2">
+                    <div className="flex flex-col md:flex-row gap-8">
+                        <div className="w-full md:w-1/2">
                             <div className="pl-6">
                                 <h4 className="text-lg font-['Poppins',_Roboto,_sans-serif] mb-4">Choose payment method</h4>
                                 <div className="flex gap-4">
@@ -341,7 +353,7 @@ const CompletePurchaseContent = ({
                             </div>
                             <CardForm totalPrice={totalPrice} totalActualPrice={totalActualPrice} cardName={cardName} setCardName={setCardName} cardNumber={cardNumber} setCardNumber={setCardNumber} expiryDate={expiryDate} setExpiryDate={setExpiryDate} />
                         </div>
-                        <div className="w-1/2 flex flex-col justify-center gap-4">
+                        <div className="w-full md:w-1/2 hidden md:flex flex-col items-center justify-start pt-16 gap-4">
                             <div className="relative w-[295px] h-[168px] bg-no-repeat bg-contain rounded-2xl shadow-lg p-6 text-white font-['Poppins',_Roboto,_sans-serif]" style={{ backgroundImage: "url('/credit_card_active.png')" }}>
                                 <div className="absolute top-20 left-6">
                                     {cardNumber ?
@@ -360,13 +372,7 @@ const CompletePurchaseContent = ({
                                     <div className="text-[12.6px]">{expiryDate || 'MM/YY'}</div>
                                 </div>
                             </div>
-                            <p className="font-['Poppins',_Roboto,_sans-serif] text-[#8b939b] text-[14px]">Guaranteed safe & secure checkout</p>
-                            <Image src="/ic_cc_ssl.png" alt="SSL" width={300} height={42} />
-                            <div className="flex gap-2">
-                                <Image src="/visa.png" alt="Visa" width={48} height={12} />
-                                <Image src="/master.png" alt="Mastercard" width={50} height={12} />
-                                <Image src="/maestro.png" alt="Maestro" width={50} height={12} />
-                            </div>
+                            <SecureCheckoutInfo />
                         </div>
                     </div>
                     : <>
@@ -378,9 +384,10 @@ const CompletePurchaseContent = ({
                         </div>
                         <SkrillForm totalPrice={totalPrice} totalActualPrice={totalActualPrice} />
                     </>
-                }</div>
+                }
+            </div>
             {currentPackage && (
-                <div ref={orderDetailsRef} className="pl-6 pr-6 pb-16 mt-12 max-w-[674px]">
+                <div ref={orderDetailsRef} className="pl-6 pr-6 md:pb-16 mt-12 max-w-[674px]">
                     <h4 className="text-lg font-semibold mb-4">Order details</h4>
                     <div className="space-y-3">
                         <div className="flex justify-between font-medium">
@@ -404,6 +411,9 @@ const CompletePurchaseContent = ({
                     </div>
                 </div>
             )}
+            <div className="md:hidden mt-8 pb-16">
+                <SecureCheckoutInfo />
+            </div>
         </div>
     );
 };
@@ -471,7 +481,7 @@ export const MultistepCheckout = ({ onBack }: { onBack?: () => void }) => {
 
     return (
         <div className="flex h-screen bg-gray-50">
-            <aside className="w-[320px] bg-[#08a9c1] p-6 text-white">
+            <aside className="hidden md:block w-[320px] bg-[#08a9c1] p-6 text-white">
                 <div className="px-4 mb-8">
                     <Image src="/logo.svg" alt="Logo" width={224} height={60} priority={true} />
                 </div>
@@ -495,19 +505,36 @@ export const MultistepCheckout = ({ onBack }: { onBack?: () => void }) => {
                 </nav>
             </aside>
             <main className="flex-1 flex flex-col overflow-hidden">
-                <header className="w-full h-[100px] bg-white flex items-center justify-between px-8">
-                    <h2 className="text-[35px] font-medium font-['Poppins',_Roboto,_sans-serif] text-gray-800">
-                        {steps[activeStep]}
-                    </h2>
-                    <button
-                        onClick={onBack ? onBack : () => router.push('/')}
-                        className="rounded-lg bg-[#f3f7ff] px-4 py-2 text-sm font-semibold text-[#0ca8c1] shadow-md transition-colors hover:bg-[#e4eaf2]"
-                    >
-                        Back to platform
-                    </button>
+                <header className="w-full h-[100px] bg-white flex items-center justify-between px-4 md:px-8">
+                    <div className="flex items-center gap-x-4">
+                        <button onClick={() => router.push('/')} className="md:hidden">
+                            <Image
+                                src="/chevron-left.svg"
+                                alt="Back"
+                                width={10}
+                                height={17}
+                            />
+                        </button>
+                        <h2 className="text-[20px] md:text-[35px] font-bold font-['Poppins',_Roboto,_sans-serif] text-gray-800">
+                            {steps[activeStep]}
+                        </h2>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={onBack ? onBack : () => router.push('/')}
+                            className="hidden md:flex items-center justify-center rounded-lg bg-[#f3f7ff] px-4 py-2 text-sm font-semibold text-[#0ca8c1] shadow-md transition-colors hover:bg-[#e4eaf2]"
+                        >
+                            Back to platform
+                        </button>
+                        <button onClick={() => router.push('/')} className="p-2 rounded-full hover:bg-gray-100 transition-colors md:hidden">
+                            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </header>
                 <div className="flex-1 flex flex-col overflow-hidden bg-white">
-                    <div className="flex-1 p-6 py-0 overflow-y-auto">
+                    <div className="flex-1 p-4 md:p-6 py-0 overflow-y-auto">
                         {stepContent[activeStep]}
                     </div>
                     <footer className="bg-white p-4 border-t border-gray-100 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
@@ -525,8 +552,8 @@ export const MultistepCheckout = ({ onBack }: { onBack?: () => void }) => {
                             <div className="flex justify-end space-x-4">
                                 <button
                                     onClick={handleBack}
-                                    disabled={activeStep === 0 || activeStep === steps.length - 1}
-                                    className="flex items-center justify-center h-[52px] px-6 font-['Poppins',_Roboto,_sans-serif] text-[18px] text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300 disabled:hidden"
+                                    disabled={activeStep === 0}
+                                    className="flex items-center justify-center h-[52px] px-0 md:px-6 font-['Poppins',_Roboto,_sans-serif] text-[18px] text-gray-700 bg-transparent md:bg-gray-200 rounded-full hover:bg-transparent md:hover:bg-gray-300 disabled:hidden"
                                 >
                                     <Image
                                         src="/chevron-left.svg"
